@@ -48,7 +48,7 @@ VALID_USER_FIELDS = get_valid_user_fields()
 
 def get_user_data(data):
     user_data = {}
-    for field, data in data.items():
+    for field, data in data.iteritems():
         if field in VALID_USER_FIELDS:
             user_data.update({field: data})
     return user_data

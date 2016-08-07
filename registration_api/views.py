@@ -4,6 +4,8 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+from rest_framework.parsers import JSONParser
+from django.views.decorators.csrf import csrf_exempt
 
 import utils
 from serializers import UserSerializer
@@ -14,13 +16,16 @@ VALID_USER_FIELDS = utils.get_valid_user_fields()
 
 @api_view(['POST'])
 @permission_classes((AllowAny, ))
+@csrf_exempt
 def register(request):
-    serialized = UserSerializer(data=request.POST)
+    data = JSONParser().parse(request)
+    serialized = UserSerializer(data=data)
     if serialized.is_valid():
-        user_data = utils.get_user_data(request.POST)
+        #serialized.save()
+        #return Response(serialized.data, status=201)
+        user_data = utils.get_user_data(serialized.validated_data)
         utils.create_inactive_user(**user_data)
-        return Response(utils.USER_CREATED_RESPONSE_DATA,
-                        status=status.HTTP_201_CREATED)
+        return Response(utils.USER_CREATED_RESPONSE_DATA, status=status.HTTP_201_CREATED)
     else:
         return Response(serialized._errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -34,5 +39,6 @@ def activate(request, activation_key=None):
     utils.activate_user(activation_key)
     # if not activated
     success_url = utils.get_settings('REGISTRATION_API_ACTIVATION_SUCCESS_URL')
-    if success_url is not None:
-        return HttpResponseRedirect(success_url)
+    if success_url is None:
+        success_url = "/"
+    return HttpResponseRedirect(success_url)

@@ -3,6 +3,8 @@
 ====================================
 Clone of Django Resgistration flow for Django Rest Framework
 
+Forked by jrenaut to update urls.py to stop using patterns
+
 Based on
 ========
 
