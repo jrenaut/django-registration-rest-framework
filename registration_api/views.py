@@ -5,7 +5,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.parsers import JSONParser
-from django.views.decorators.csrf import csrf_exempt
+#from django.views.decorators.csrf import csrf_exempt
 
 import utils
 from serializers import UserSerializer
@@ -16,13 +16,10 @@ VALID_USER_FIELDS = utils.get_valid_user_fields()
 
 @api_view(['POST'])
 @permission_classes((AllowAny, ))
-@csrf_exempt
 def register(request):
     data = JSONParser().parse(request)
     serialized = UserSerializer(data=data)
     if serialized.is_valid():
-        #serialized.save()
-        #return Response(serialized.data, status=201)
         user_data = utils.get_user_data(serialized.validated_data)
         utils.create_inactive_user(**user_data)
         return Response(utils.USER_CREATED_RESPONSE_DATA, status=status.HTTP_201_CREATED)
